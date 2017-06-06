@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+  <li><a href="/center">Home</a></li>
+  <li class="active">Regist</li>
+</ol>
+<div class="container center-block">
+    <div>
+        <img src = "/login2.png" class="img-responsive center-block" >
+    </div>
+    <div class="center-block" style="width: 510px;border: 3px solid #ccc!important;padding:64px;border-radius: 6px!important;">
+        <h4 class="center-block navbar-text alert alert-info" role="alert" style="text-align:center">Welcome zcbb smart home<span class="label"><a href="/center/login">Login</a> Or Sign up</span></h4>
+        <form action="/center/regist" method="post">
+            <h5>用户名 <small>Username</small></h5>
+            <input class="form-control" type="text" required="required" placeholder="用户名" name="username">
+            <h5>密码 <small>Password</small></h5>
+            <input class="form-control" type="password" required="required" placeholder="密码" name="password">
+            <br>
+            <button type="submit" class="btn btn-default btn-lg active pull-right">注册</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

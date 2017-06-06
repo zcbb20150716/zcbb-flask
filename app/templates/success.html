@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class = "container center-block">
+        <h1>Success....<span class="label label-default">New</span></h1>
+    </div>
+    <br>
+    <div class = "container" style="border: 2px solid #ccc!important;padding:44px;border-radius: 6px!important;">
+        <h3>上传成功...</h3>
+        <a href="/center/admin/uploadphoto">上传图片</a>
+        <a href="/center/admin/vediozj">维护vedio分类</a>
+        <a href="/center/admin/uploadvedio">上传vedio</a>
+    </div>
+{% endblock %}

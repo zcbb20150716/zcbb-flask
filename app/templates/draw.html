@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+<script type="text/javascript" src="/js/draw/html5-canvas-drawing-app.js"></script>
+<script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.slim.min.js"></script>
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <h1 class="center-block">一个神奇的画图板!</h1>
+    <div class = "container" style="border: 2px solid #ccc!important;padding:44px;border-radius: 6px!important;">
+        {% for d in ds %}
+            <a href="{{ d.url }}" role="button">{{ d.name }}</a>&nbsp&nbsp&nbsp
+        {% endfor %}
+    </div>
+    <div style="width:530px;margin:10px auto">
+    <div id="canvasDiv"></div>
+    </div>
+    <script type="text/javascript"> $(document).ready(function() {
+         prepareCanvas("{{ type }}");
+    });
+    </script>
+    <div style="text-align:center;clear:both;margin-top:30px" />
+{% endblock %}

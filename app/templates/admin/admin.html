@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+    <li><a href="/center">Home</a></li>
+    <li class="active">Admin</li>
+</ol>
+<a href="/center/admin/showuser/info/1">用户中心</a>
+<a href="/center/admin/showlog/info/1">日志中心</a>
+<a href="/center/admin/showimage/info/1">图片管理</a>
+<a href="/center/admin/uploadphoto">图片上传</a>
+<a href="/center/testing">测试接口</a>
+<a href="/center/admin/vediozj">Vedio专辑管理</a>
+<a href="/center/admin/uploadvedio">Vedio上传</a>
+{% endblock content %}

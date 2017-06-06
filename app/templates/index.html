@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link href="/css/intro/introjs.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/intro/intro.js"></script>
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<h1 class="center-block" data-step="1" data-intro="欢迎来到箴初爸爸制作的网站!">welcome </h1>
+<p class="lead center-block" data-step="6" data-intro="Another step.">开始进入一个全新的网站吧...<code>Hello World</code></p>
+<button id="info" class="btn btn-lg btn-success center-block " style="DISPLAY:none" href="javascript:void(0);" onclick="javascript:introJs().setOption('showProgress', true).start();">点击我,进入首页引导</button>
+<div class = "container">
+    <img src = "/quanjiafu.jpg" class="img-responsive center-block" >
+</div>
+{% if num == 1 %}
+<script>
+    window.onload = function() {
+        $("#info").click();
+        };
+</script>
+{% endif %}
+{% endblock %}

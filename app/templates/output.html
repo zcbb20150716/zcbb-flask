@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+    <li><a href="/center">Home</a></li>
+    <li><a href="#">Smart Hmome</a></li>
+    <li class="active">Siri</li>
+</ol>
+<div class = "container">
+        <img src = "/dabai.gif" class="img-responsive center-block" >
+    </div>
+<div class="page-header" style="margin-left:15px;margin-right:15px;">
+    <h3>Tell me what I want to know..<span class="label label-default">图灵机器人</span></h3>
+    <h1>Love your neighbor as yourself.<small>Learn humility</small></h1>
+</div>
+<div style="border: 3px solid #ccc!important;padding:44px;margin-left:15px;margin-right:15px;border-radius: 16px!important;">
+    <div id="baidu">
+        <h1>箴初爸爸的机器人^_^兔灵 欢迎你</h1>
+            <p>调用结果：{{status}}</p>
+            <p>机器人说：{{out}}</p>
+        <audio id="audio1" width="420" controls="controls">
+            <source src="{{ url }}" type="audio/mp4" />
+        </audio>
+        <a href="http://zcbb.natapp4.cc/center/ai">继续对话</a>
+    </div>
+</div>
+<script>
+var myAudio = document.getElementById('audio1');
+    function playPause(){
+        if(myAudio.paused){
+            myAudio.play();
+        }else{
+            myAudio.pause();
+        }
+    }
+</script>
+{% endblock content %}

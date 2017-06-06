@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+    <li><a href="/center">Home</a></li>
+    <li><a href="#">Smart Hmome</a></li>
+    <li class="active">Siri</li>
+</ol>
+<div class = "container">
+        <img src = "/dabai.jpeg" class="img-responsive center-block" >
+    </div>
+<div class="page-header" style="margin-left:15px;margin-right:15px;">
+    <h3>Tell me what I want to know..<span class="label label-default">图灵机器人</span></h3>
+    <h1>Love your neighbor as yourself.<small>Learn humility</small></h1>
+</div>
+  <div style="width:620px; border: 3px solid #ccc!important;padding:44px;margin-left:15px;margin-right:15px;border-radius: 16px!important;">
+   <form class="form-search" method="post">
+     {{form.hidden_tag()}}
+    <p>对话类型：{{form.type}}</p>
+       对话内容: <small style="color: #5bb75b;">&#9827;可以输入也可以语音输入&#9827;</small><input id="iat_result" class="form-control" type="text" value="" name="text" placeholder="输入对话内容"/>
+    <button id="btn_1" style="" type="submit" class="btn btn-default navbar-btn">提交</button>
+    <div style="position:relative">
+     <div>
+        <small style="color: #5bb75b;">&trade;  Hello Siri</small><h5>请点击语音助手进行录音(!!!请确认系统是否识别了您的语音再提交数据)</h5>
+        <img id="a" src="/siri.jpg" style="width: 50px; height: 50px;"/>
+     </div>
+     <div id="canvas_wrapper" style="display:none">
+      <div style="display: inline">
+          <small>音量:</small>
+      </div>
+      <canvas id="volume" height="4" width="350"></canvas>
+     </div>
+     <div class="clear"></div>
+    </div>
+    <script>
+        onerror=function(a,b,c){
+            alert(a+b+c);
+        }
+    </script>
+    <script type="text/javascript" src="/js/xunfei/fingerprint2.min.js"></script>
+    <script type="text/javascript" src="/js/xunfei/iat.all.js"></script>
+    <script type="text/javascript" src="/js/xunfei/demo.js"></script>
+   </form>
+  </div>
+<br>
+
+{% endblock content %}

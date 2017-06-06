@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+    <li><a href="/center">Home</a></li>
+    <li><a href="/center/admin">Admin</a></li>
+    <li class="active">vediozj</li>
+</ol>
+<div class="container center-block row" >
+    <div>
+        <img src = "/login2.png" class="img-responsive center-block" >
+    </div>
+    <div class="center-block" style="width: 510px;border: 3px solid #ccc!important;padding:64px;border-radius: 6px!important;">
+         <form method="post" enctype="multipart/form-data">
+             {{form.hidden_tag()}}
+             <div><span>请输入专辑名称</span>{{ form.name }}</div>
+             <div><span>请输入专辑来源</span>{{ form.comefrom }}</div>
+             <div>{{ form.image_file(required="required") }}</div>
+             {{ form.submit }}
+         </form>
+    </div>
+</div>
+
+{% endblock content %}

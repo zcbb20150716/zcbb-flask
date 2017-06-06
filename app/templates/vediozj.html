@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<ol class="breadcrumb">
+    <li><a href="/center">Home</a></li>
+    <li><a href="/center/admin">Admin</a></li>
+    <li class="active">ShowVedioZj</li>
+</ol>
+    <div>
+        <input id="search" type="text">
+        <a id="search_btn" href="" role="button">查询</a>
+    </div>
+    {% for info in infos %}
+        <div class="media" style="border: 1px solid #ccc!important;padding:14px;border-radius: 3px!important;">
+        <div class="media-left media-middle">
+        <a href="http://zcbb.natapp4.cc/center/showvedio/info/{{ info.id }}">
+        <img id="img_btn" class="media-object" src="data:image/jpg;base64,{{ base64.b64encode(info.image) }}" alt="">
+        </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">专辑概述</h4>
+            <h5>名称: {{ info.name }}</h5>
+            <h5>出处: {{ info.comefrom }}</h5>
+        </div>
+        </div>
+    {% endfor %}
+<tr>
+    <td colspan="6">
+        <div class="pagination center-block">
+            <div class="row-fluid">
+                <div class="span3 offset2 pager" style="float: right; padding-right: 20px">
+                    {% if pagination.has_prev %}
+                        <a href="{{ pagination.prev_num }}">上一页</a>
+                    {% endif %}
+                </div>
+                <div class="span3" style="float: right; padding-right: 20px; padding-top: 20px">
+                    <a href="">当前页: {{ pagination.page }} in {{ pagination.pages }}.</a>
+                </div>
+                <div class="span3 pager" style="float: right; padding-right: 20px">
+                    {{ pagination.links }}
+                    {% if pagination.has_next %}
+                        <a href="{{ pagination.next_num }}">下一页</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
+<script>
+    $('#search').blur(function(){
+    var h = $('#search').val()
+    var link = "http://zcbb.natapp4.cc/center/showvediozj/info/";
+    link+=h;
+    $('#search_btn').attr("href",link)
+    });
+</script>
+{% endblock content %}

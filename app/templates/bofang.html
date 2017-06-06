@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+<h1 class="center-block">welcome </h1>
+<p class="lead center-block" data-step="6" data-intro="Another step.">我们一起来听音乐吧...<code>Music</code></p>
+<div>
+    <video class="col-md-8" width="650" height="440" src = "{{ info.vedio }}" controls="controls"></video>
+    <div class="col-md-4">
+        <img  src="http://zcbb.natapp4.cc/changge.gif" />
+    </div>
+</div>
+{% endblock %}
