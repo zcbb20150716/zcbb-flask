@@ -6,11 +6,14 @@ from .forms import lyForm, imageForm, vediozjForm
 from ..models import UserInfo, ImageFile, Log, Draw, ZmVedioZj, ZmVedio
 from .. import db, babel
 from config import LANGUAGES
-from flask import request, render_template, redirect
-import datetime, time
+from flask import request, render_template, redirect, make_response
+import datetime
+import time
 import logging
-import hashlib, requests
-import yaml, base64
+import hashlib
+import requests
+import yaml
+import base64
 from ..tools import baidu_api as baidu
 from ..tools import wx_api as wx
 
@@ -18,6 +21,8 @@ from ..tools import wx_api as wx
 @babel.localeselector
 def get_locale():
     return request.accept_languages.best_match(LANGUAGES.keys())
+
+
 # -------------------------logging 日志统计--------------------------
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y %H:%M:%S',
                     filename='logs/pro.log', filemode='w')
@@ -27,6 +32,21 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(mes
 def test():
     print 'success'
     return jsonify({'msg': 'success'})
+
+
+@dashboard.route('/vue', methods=['GET'])
+def vue_1():
+    print str(datetime.datetime.now()) + '   vue_1 get request'
+    response = jsonify({
+        'data': {
+            'message': 'hello',
+            'info': u'欢迎'
+        }
+    })
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST'
+    response.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
+    return response
 
 
 @dashboard.route('/test2', methods=['GET', 'POST'])
@@ -55,7 +75,7 @@ def testing():
 @dashboard.route('/', methods=['GET', 'POST'])
 def center():
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if datas is not None:
             if int(time.time()) - datas.last_login < 500:
                 return render_template('center.html', u=session['username'], d=session['status'], title=u'Zcbb-center')
@@ -71,7 +91,7 @@ def center():
 @dashboard.route('/draw/<string:type>', methods=['GET', 'POST'])
 def draw(type):
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             if session['status'] in ["1", "2", "9"]:
                 _date = datetime.datetime.now()
@@ -92,7 +112,8 @@ def login():
     _date = datetime.datetime.now()
     if request.method == 'POST':
         if session.has_key("username") and session['status'] in ["1", "2", "9"]:
-            datas = UserInfo.query.filter_by(username=session['username']).first();
+            datas = UserInfo.query.filter_by(
+                username=session['username']).first()
             if datas is not None:
                 _num = datas.num + 1
                 datas.num = datas.num + 1
@@ -121,8 +142,9 @@ def login():
                         session['username'] = request.form['username']
                         session['password'] = request.form['password']
                         session['status'] = datas.__dict__['status']
-                        if session['status'] is not None and session['status'] in ["1","2","9"]:
-                            create_log(session['username'], "login", "/login", _date)
+                        if session['status'] is not None and session['status'] in ["1", "2", "9"]:
+                            create_log(session['username'],
+                                       "login", "/login", _date)
                             return render_template('index.html', u=session['username'], d=session['status'], num=_num, title='index')
                         else:
                             return render_template('shenhe.html', title=u'Zcbb-Welcome-账号审核中,请耐心等待')
@@ -146,11 +168,12 @@ def regist():
         else:
             if username is not None or password is not None:
                 _date = datetime.datetime.now()
-                user = UserInfo(username=username, password=password, create_time=_date, update_time=_date)
+                user = UserInfo(username=username, password=password,
+                                create_time=_date, update_time=_date)
                 user.hash_password(password)
                 db.session.add(user)
                 db.session.commit()
-                create_log(username,"regist", "/regist", _date)
+                create_log(username, "regist", "/regist", _date)
                 return render_template('shenhe.html', title=u'Zcbb-Welcome-账号审核中,请耐心等待')
             else:
                 return render_template('register.html', title=u'Zcbb-register')
@@ -171,7 +194,7 @@ def logout():
 @dashboard.route('/admin', methods=['GET', 'POST'])
 def admin():
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             if session['status'] == "9":
                 return render_template('admin/admin.html', u=session['username'], d=session['status'], title='Zcbb-admin')
@@ -187,12 +210,13 @@ def admin():
 @dashboard.route('/showphoto', methods=['GET'])
 def showphoto():
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             if session['status'] in ["1", "2", "9"]:
                 _date = datetime.datetime.now()
                 ds = ImageFile.query.all()
-                create_log(session['username'], "showphoto", "/showphoto", _date)
+                create_log(session['username'],
+                           "showphoto", "/showphoto", _date)
                 return render_template('showphoto.html', u=session['username'], ds=ds, d=session['status'], title='Zcbb-admin', base64=base64)
             else:
                 return render_template('403.html', u=session['username'], d=session['status'], title='error-403')
@@ -205,7 +229,7 @@ def showphoto():
 
 @dashboard.route('/admin/showuser', methods=['GET', 'POST'])
 def admin_showuser():
-    datas = UserInfo.query.filter_by(username=session['username']).first();
+    datas = UserInfo.query.filter_by(username=session['username']).first()
     if int(time.time()) - datas.last_login < 500:
         if session.has_key("username") and session['status'] == "9":
             return redirect('dashboard/admin/showuser/info/1')
@@ -220,13 +244,14 @@ def admin_showuser():
 def showuser(page):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = page
             pagination = UserInfo.query.filter(UserInfo.id > 0).paginate(
                 page=_g, per_page=1, error_out=False)
             posts = pagination.items
-            create_log(session['username'], "showuser", "/admin/showuser", _date)
+            create_log(session['username'], "showuser",
+                       "/admin/showuser", _date)
             return render_template('admin/showuser.html',
                                    u=session['username'],
                                    d=session['status'],
@@ -245,7 +270,7 @@ def showuser(page):
 @dashboard.route('/admin/showlog', methods=['GET', 'POST'])
 def admin_showlog():
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             return redirect('dashboard/admin/showlog/info/1')
         else:
@@ -261,7 +286,7 @@ def admin_showlog():
 def showlog(page):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = page
             pagination = Log.query.filter(Log.id > 0).paginate(
@@ -286,7 +311,7 @@ def showlog(page):
 @dashboard.route('/admin/showimage', methods=['GET', 'POST'])
 def admin_showimage():
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             return redirect('dashboard/admin/showimage/info/1')
         else:
@@ -302,13 +327,14 @@ def admin_showimage():
 def showimage(page):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = page
             pagination = Log.query.filter(Log.id > 0).paginate(
                 page=_g, per_page=10, error_out=False)
             posts = pagination.items
-            create_log(session['username'], "showimage", "/admin/showimage", _date)
+            create_log(session['username'], "showimage",
+                       "/admin/showimage", _date)
             return render_template('admin/showimage.html',
                                    u=session['username'],
                                    d=session['status'],
@@ -328,19 +354,21 @@ def showimage(page):
 def upload():
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             form = imageForm()
             if request.method == 'POST' and form.validate():
                 file = request.files['file'].read()
                 file_name = form.name.data
                 position = form.position.data
-                exist= form.exist.data
-                image_file = ImageFile(image_name=file_name, image=file, position=position, exist=exist, create_time=_date, update_time=_date)
+                exist = form.exist.data
+                image_file = ImageFile(image_name=file_name, image=file, position=position,
+                                       exist=exist, create_time=_date, update_time=_date)
                 print image_file
                 db.session.add(image_file)
                 db.session.commit()
-                create_log(session['username'], "uploadphoto", "/admin/uploadphoto", _date)
+                create_log(session['username'], "uploadphoto",
+                           "/admin/uploadphoto", _date)
                 return render_template('success.html', u=session['username'], d=session['status'])
             return render_template('admin/uploadphoto.html', u=session['username'], d=session['status'], form=form, base64=base64, title="Zcbb-uploadphoto")
         else:
@@ -356,17 +384,19 @@ def upload():
 def vediozj():
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             form = vediozjForm()
             if request.method == 'POST' and form.validate():
                 image_file = request.files['image_file'].read()
                 name = form.name.data
                 _from = form.comefrom.data
-                zmVedioZj = ZmVedioZj(name=name, comefrom=_from, image=image_file, create_time=_date, update_time=_date)
+                zmVedioZj = ZmVedioZj(
+                    name=name, comefrom=_from, image=image_file, create_time=_date, update_time=_date)
                 db.session.add(zmVedioZj)
                 db.session.commit()
-                create_log(session['username'], "vediozj", "/admin/vediozj", _date)
+                create_log(session['username'], "vediozj",
+                           "/admin/vediozj", _date)
                 return render_template('success.html', u=session['username'], d=session['status'])
             return render_template('admin/vediozj.html', u=session['username'], d=session['status'], form=form, base64=base64, title="Zcbb-vediozj")
         else:
@@ -381,9 +411,9 @@ def vediozj():
 @dashboard.route('/bofang/<int:num>', methods=['GET', 'POST'])
 def bofang(num):
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
-            info = ZmVedio.query.filter_by(id=num).first();
+            info = ZmVedio.query.filter_by(id=num).first()
             return render_template('bofang.html', info=info, u=session['username'], d=session['status'], title=u'Zcbb-index')
         else:
             session.pop('username', None)
@@ -396,14 +426,15 @@ def bofang(num):
 def uploadvedio():
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         op = ZmVedioZj.query.filter(ZmVedioZj.id > 0)
         if int(time.time()) - datas.last_login < 500:
             if request.method == 'POST':
                 vedio_file = request.form['vedio']
                 name = request.form['name']
                 zj_id = request.form['zj_id']
-                zmVedio = ZmVedio(name=name, zj_id=zj_id, vedio=vedio_file, create_time=_date, update_time=_date)
+                zmVedio = ZmVedio(
+                    name=name, zj_id=zj_id, vedio=vedio_file, create_time=_date, update_time=_date)
                 db.session.add(zmVedio)
                 db.session.commit()
                 create_log(session['username'], "vedio", "/admin/vedio", _date)
@@ -422,13 +453,14 @@ def uploadvedio():
 def showvediozj(page):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = page
             pagination = ZmVedioZj.query.filter(ZmVedioZj.id > 0).paginate(
                 page=_g, per_page=10, error_out=False)
             posts = pagination.items
-            create_log(session['username'], "showvediozj", "/showvediozj", _date)
+            create_log(session['username'], "showvediozj",
+                       "/showvediozj", _date)
             return render_template('vediozj.html',
                                    u=session['username'],
                                    d=session['status'],
@@ -449,7 +481,7 @@ def showvediozj(page):
 def showvedio(search):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = 1
             pagination = ZmVedio.query.filter(ZmVedio.zj_id == search).paginate(
@@ -476,13 +508,14 @@ def showvedio(search):
 def vediosearch(search):
     _date = datetime.datetime.now()
     if session.has_key("username") and session['status'] == "9":
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             _g = 1
-            pagination = ZmVedioZj.query.filter(ZmVedioZj.name.ilike('%'+search+'%')).paginate(
+            pagination = ZmVedioZj.query.filter(ZmVedioZj.name.ilike('%' + search + '%')).paginate(
                 page=_g, per_page=10, error_out=False)
             posts = pagination.items
-            create_log(session['username'], "showvediozj", "/showvediozj", _date)
+            create_log(session['username'], "showvediozj",
+                       "/showvediozj", _date)
             return render_template('vediozj.html',
                                    u=session['username'],
                                    d=session['status'],
@@ -502,7 +535,7 @@ def vediosearch(search):
 @dashboard.route('/index', methods=['GET', 'POST'])
 def index():
     if session.has_key("username"):
-        datas = UserInfo.query.filter_by(username=session['username']).first();
+        datas = UserInfo.query.filter_by(username=session['username']).first()
         if int(time.time()) - datas.last_login < 500:
             return render_template('index.html', u=session['username'], d=session['status'], title=u'Zcbb-index')
         else:
@@ -537,7 +570,8 @@ def get_baidu():
                 "secret": "968b64ab77a4e4cb",
                 "cmd": text
             }
-            r = requests.get("http://127.0.0.1:8080/api/info/get_liaotianduihua", params=d)
+            r = requests.get(
+                "http://127.0.0.1:8080/api/info/get_liaotianduihua", params=d)
             print "请求本地java-api返回data参数为：" + r.text
 
             h = {
@@ -546,7 +580,8 @@ def get_baidu():
 
             _d = yaml.load(r.text)
             print "妆化后" + str(_d)
-            p = requests.post("http://www.tuling123.com/openapi/api", json=_d, headers=h)
+            p = requests.post(
+                "http://www.tuling123.com/openapi/api", json=_d, headers=h)
             _r = yaml.load(p.text)
             _out = _r['text']
             if p.status_code == 200:
@@ -556,7 +591,8 @@ def get_baidu():
                 print get_date() + '生成文件.....'
                 print get_date() + '开始播放mp3'
                 create_log(session['username'], "ai", "/ai", _date)
-                _u = "http://zcbb.natapp4.cc/ai-" + session['username'] + ".mp3"
+                _u = "http://zcbb.natapp4.cc/ai-" + \
+                    session['username'] + ".mp3"
                 return render_template('output.html', url=_u, form=form, out=_out, status=_status, u=session['username'], d=session['status'], title=u"Zcbb-智能机器人ai")
             else:
                 print "调用失败..."
@@ -583,7 +619,8 @@ def get_vedio():
     print request.url
     print data
     print data['serverId']
-    token = wx.get_Token('wxca71f5a3e09e3df0', '91e55d425f044670c10a37d9f6b875a0')
+    token = wx.get_Token('wxca71f5a3e09e3df0',
+                         '91e55d425f044670c10a37d9f6b875a0')
     media_id = data['serverId']
     _d = {
         "access_token": token,
@@ -612,12 +649,14 @@ def wx():
     jsapi_ticket = wx.get_jsapi_ticket('wxca71f5a3e09e3df0',
                                        '91e55d425f044670c10a37d9f6b875a0')  # 用户自定义函数，用于获取jsapi_ticket
     print jsapi_ticket
-    signature = 'jsapi_ticket=%s&noncestr=%s&timestamp=%s&url=%s' % (jsapi_ticket, noncestr, now, url2)
+    signature = 'jsapi_ticket=%s&noncestr=%s&timestamp=%s&url=%s' % (
+        jsapi_ticket, noncestr, now, url2)
     m = hashlib.sha1()
     m.update(signature)
     signature = m.hexdigest()
     print 'signature::::' + signature
-    signature = {"timestamp": now, "nonceStr": noncestr, "signature": signature, "url": url}
+    signature = {"timestamp": now, "nonceStr": noncestr,
+                 "signature": signature, "url": url}
     return render_template('wx.html', signature=signature)
 
 
@@ -637,9 +676,10 @@ def server_interval(e):
     return render_template('500.html', u=session['username']), 500
 
 
-def create_log(user, log_type, action,date):
+def create_log(user, log_type, action, date):
     _u = UserInfo.query.filter_by(username=user).first()
     if _u is not None:
-        _log = Log(user=user, logtype=log_type, action=action, create_time=date)
+        _log = Log(user=user, logtype=log_type,
+                   action=action, create_time=date)
         db.session.add(_log)
         db.session.commit()
